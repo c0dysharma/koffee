@@ -31,4 +31,4 @@ RUN mkdir -p /var/run/redis
 RUN chmod 777 /var/run/redis
 
 # Command to run Celery and Gunicorn
-CMD bash -c "redis-server --daemonize yes && celery -A dependencies worker --loglevel=INFO & fastapi run --workers 4 main.py"
+CMD bash -c "redis-server --daemonize yes && celery -A dependencies worker --loglevel=INFO & fastapi run --workers 1 main.py"

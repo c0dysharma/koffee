@@ -79,3 +79,23 @@ GET ```/results/<task_id>```
    ]
 }
 ```
+
+## Design decisions
+
+Simple and scaleable design 
+
+![](static/design.png)
+
+* Used redis for storing status and results
+
+* Celery for queueing
+
+## Future improvements
+ 
+* Database to start with
+
+* Support for private repos
+
+* Auth Support
+
+* Rate Limiting

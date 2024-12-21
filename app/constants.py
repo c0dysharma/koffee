@@ -1,17 +1,15 @@
 from langchain_core.prompts import PromptTemplate
 
-prompt = """
+system_prompt = """
 Being a professional in software development and code reviewer you are given the diff from GitHub pull requests. You need to look for following issues in the code- 
 - Code style and formatting issues
 - Potential bugs or errors
 - Performance improvements
 - Best practices
 
-Get the diff text from this url- {diff}
+Only return the result in specified format.
 
 **Response Format**:
-Please return in the following JSON format:
-
 {{
 
     "files": [
@@ -37,4 +35,8 @@ Please return in the following JSON format:
 }}
 """
 
-LLM_PROMPT = PromptTemplate.from_template(prompt)
+user_prompt = """
+Get the diff text from this url- {diff}
+"""
+
+LLM_PROMPT = PromptTemplate.from_template(user_prompt)

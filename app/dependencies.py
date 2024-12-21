@@ -4,10 +4,11 @@ import time
 import redis
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import HumanMessage, SystemMessage
 import json
 import re
 import traceback
-from constants import LLM_PROMPT
+from constants import LLM_PROMPT, system_prompt
 
 load_dotenv()
 
@@ -49,6 +50,7 @@ def get_job_error_key(job_id: str):
 
 
 def extract_json(message: str):
+    """ Convert response.content from LLM into valid json format """
     text = message.content
     # Define the regular expression pattern to match JSON blocks
     pattern = r"\`\`\`json(.*?)\`\`\`"
@@ -64,9 +66,17 @@ def extract_json(message: str):
         raise ValueError("Failed to parse data")
 
 
+# Define the tool
+toolkit = []
+
+# agent_executor = create_react_agent(llm, toolkit)
+llm_with_tools = llm.bind_tools(toolkit)
+
+
 def invoke_llm(prompt):
     # Send the prompt to the LLM and return content
-    response = llm.invoke(prompt)
+    response = llm_with_tools.invoke(
+        [SystemMessage(system_prompt), HumanMessage(prompt)])
     return extract_json(response)
 
 
@@ -86,9 +96,10 @@ def review_pr(job_id: str, repo: str, pr_number: str, github_token: str = None):
         redis_client.set(status_key, 'successful')
 
         # json to string
-        redis_client.set(result_key, json.dumps(result))
+        redis_client.set(result_key, json.dumps(result) if result else None)
 
     except Exception as e:
         stack_trace = traceback.format_exc()
+        print(stack_trace)
         redis_client.set(status_key, 'failed')
         redis_client.set(get_job_error_key(job_id), stack_trace)

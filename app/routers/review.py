@@ -24,6 +24,7 @@ async def add_pr_review_task(args: PR_details):
     # call the LLM to get result
     review_pr.apply_async(
         (job_id, args.repo_url, args.pr_number, args.github_token), task_id=job_id)
+    # review_pr(job_id, args.repo_url, args.pr_number, args.github_token)
 
     return {'status': 'success', 'job_id': job_id}
 
@@ -43,4 +44,4 @@ async def read_result(job_id: str):
 
     status = redis_client.get(status_key)
     result = redis_client.get(results_key)
-    return {"job_id": job_id, 'status': status, 'results': json.loads(result)}
+    return {"job_id": job_id, 'status': status, 'results': json.loads(result) if result else None}
